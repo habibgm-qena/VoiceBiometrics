@@ -22,7 +22,8 @@ const VoiceBiometricAuthentication: React.FC = () => {
     const customerId = localStorage.getItem('customerID')
     if (customerId) {
       setCustomerId(customerId)
-    } else {
+    }
+    else {
       router.push('/')
     }
   })
@@ -40,7 +41,8 @@ const VoiceBiometricAuthentication: React.FC = () => {
       mediaRecorderRef.current.start()
       setRecording(true)
       audioChunksRef.current = []
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error accessing microphone:', error)
       alert('Microphone permission is required to record audio.')
     }
@@ -66,8 +68,8 @@ const VoiceBiometricAuthentication: React.FC = () => {
     }
 
     const formData = new FormData()
-    const audioBlob =
-      audioChunksRef.current.length > 0
+    const audioBlob
+      = audioChunksRef.current.length > 0
         ? new Blob(audioChunksRef.current, { type: 'audio/wav' })
         : null
 
@@ -91,13 +93,16 @@ const VoiceBiometricAuthentication: React.FC = () => {
         // alert('Submitted successfully');
         const responseData = await response.json()
         setResult(responseData?.result || 'No result found')
-      } else {
+      }
+      else {
         alert('Submission failed')
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error submitting form data:', error)
       alert('An error occurred during submission. Please try again later.')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
