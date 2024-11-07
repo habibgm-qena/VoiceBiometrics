@@ -11,25 +11,40 @@ interface audioRecordComponentProps {
   setAudioUrl1: React.Dispatch<React.SetStateAction<string | null>>
   playing1: boolean
   setPlaying1: React.Dispatch<React.SetStateAction<boolean>>
-  startRecording: (setRecording: React.Dispatch<React.SetStateAction<boolean>>, setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>) => void
-  stopRecording: (setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>, setRecording: React.Dispatch<React.SetStateAction<boolean>>) => void
+  startRecording: (
+    setRecording: React.Dispatch<React.SetStateAction<boolean>>,
+    setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => void
+  stopRecording: (
+    setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>,
+    setRecording: React.Dispatch<React.SetStateAction<boolean>>,
+  ) => void
   id: string
 }
 
-const AudioRecordComponent: React.FC<audioRecordComponentProps> = ({ title, recording1, setRecording1, audioUrl1, setAudioUrl1, startRecording, stopRecording, id }: audioRecordComponentProps) => {
+const AudioRecordComponent: React.FC<audioRecordComponentProps> = ({
+  title,
+  recording1,
+  setRecording1,
+  audioUrl1,
+  setAudioUrl1,
+  startRecording,
+  stopRecording,
+  id,
+}: audioRecordComponentProps) => {
   return (
     <div className="mb-4 flex flex-col gap-1">
       <p className="text-gray-700">
         {/* Please say, "ጥቂት ቁሳዊ አካል ከጨረቃ በታች ባለ ጠባብ ክፍል ውስጥ አገኘሁ"
-             */}
+         */}
         {title}
       </p>
       <div className="flex">
         <button
           type="button"
           className={`mt-2 px-4 py-2 rounded-md text-white ${
-                recording1 ? 'bg-red-500' : 'bg-blue-500'
-            } flex items-center`}
+            recording1 ? 'bg-red-500' : 'bg-blue-500'
+          } flex items-center`}
           onClick={() => startRecording(setRecording1, setAudioUrl1)}
           disabled={recording1}
         >

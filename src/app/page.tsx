@@ -1,10 +1,9 @@
-import VoiceBiometricAuthentication from '@/components/auth/auth'
+import VoiceBiometricVerification from '@/components/homepage/homepage'
 
 export default function Home() {
   return (
     <div>
-      {/* <VoiceBiometricVerification/> */}
-      <VoiceBiometricAuthentication />
+      <VoiceBiometricVerification />
     </div>
   )
 }

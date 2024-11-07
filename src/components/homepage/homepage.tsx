@@ -1,6 +1,7 @@
 'use client'
 
 import { Spinner } from '@radix-ui/themes'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useRef, useState } from 'react'
 
@@ -22,6 +23,7 @@ const VoiceBiometricVerification: React.FC = () => {
   const [recording1, setRecording1] = useState<boolean>(false)
   const [recording2, setRecording2] = useState<boolean>(false)
   const [recording3, setRecording3] = useState<boolean>(false)
+  const router = useRouter()
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -30,14 +32,19 @@ const VoiceBiometricVerification: React.FC = () => {
     setRecording: React.Dispatch<React.SetStateAction<boolean>>,
     setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>,
   ) => {
-    setAudioUrl(null)
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorderRef.current = new MediaRecorder(stream)
-    mediaRecorderRef.current.start()
-    setRecording(true)
-    audioChunksRef.current = []
-    mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-      audioChunksRef.current.push(event.data)
+    try {
+      setAudioUrl(null)
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      mediaRecorderRef.current.start()
+      setRecording(true)
+      audioChunksRef.current = []
+      mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
+        audioChunksRef.current.push(event.data)
+      }
+    } catch (error) {
+      console.error('Error accessing microphone:', error)
+      alert('Microphone permission is required to record audio.')
     }
   }
 
@@ -90,7 +97,8 @@ const VoiceBiometricVerification: React.FC = () => {
       )
 
       if (response.ok) {
-        alert('Data submitted successfully')
+        localStorage.setItem('customerID', customerID)
+        router.push('/auth')
       } else {
         alert('Failed to submit data')
       }

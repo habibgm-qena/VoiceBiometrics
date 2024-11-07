@@ -1,6 +1,7 @@
 'use client'
 
 import { Spinner } from '@radix-ui/themes'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useRef, useState } from 'react'
 
@@ -14,19 +15,35 @@ const VoiceBiometricAuthentication: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [result, setResult] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [customerId, setCustomerId] = useState<string>('')
+  const router = useRouter()
+
+  React.useEffect(() => {
+    const customerId = localStorage.getItem('customerID')
+    if (customerId) {
+      setCustomerId(customerId)
+    } else {
+      router.push('/')
+    }
+  })
 
   const startRecording = async () => {
-    setAudioUrl(null)
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorderRef.current = new MediaRecorder(stream)
+    try {
+      setAudioUrl(null)
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
 
-    mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-      audioChunksRef.current.push(event.data)
+      mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
+        audioChunksRef.current.push(event.data)
+      }
+
+      mediaRecorderRef.current.start()
+      setRecording(true)
+      audioChunksRef.current = []
+    } catch (error) {
+      console.error('Error accessing microphone:', error)
+      alert('Microphone permission is required to record audio.')
     }
-
-    mediaRecorderRef.current.start()
-    setRecording(true)
-    audioChunksRef.current = []
   }
 
   const stopRecording = () => {
@@ -57,6 +74,8 @@ const VoiceBiometricAuthentication: React.FC = () => {
     if (audioBlob) {
       formData.append('audio_file', audioBlob, 'recordedAudio.wav')
     }
+
+    formData.append('customer_id', customerId)
 
     try {
       setLoading(true)
