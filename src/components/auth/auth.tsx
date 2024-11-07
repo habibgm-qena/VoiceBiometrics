@@ -1,98 +1,101 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
-import AudioRecordComponent from '../homepage/compononets/audioRecord';
+import * as React from 'react'
+import { useRef, useState } from 'react'
+
+import AudioRecordComponent from '../homepage/compononets/audioRecord'
 
 const VoiceBiometricAuthentication: React.FC = () => {
-  const [recording, setRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [recording, setRecording] = useState(false)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [result, setResult] = useState<string | null>(null)
 
   const startRecording = async () => {
-    setAudioUrl(null);
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorderRef.current = new MediaRecorder(stream);
-    
+    setAudioUrl(null)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorderRef.current = new MediaRecorder(stream)
+
     mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-      audioChunksRef.current.push(event.data);
-    };
-    
-    mediaRecorderRef.current.start();
-    setRecording(true);
-    audioChunksRef.current = [];
-  };
-
-  const stopRecording = () => {    
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioUrl(audioUrl);
-      };
-      setRecording(false);
+      audioChunksRef.current.push(event.data)
     }
-  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!audioUrl) {
-            alert('Please record the audio');
-            return;
-        }
+    mediaRecorderRef.current.start()
+    setRecording(true)
+    audioChunksRef.current = []
+  }
 
-        const formData = new FormData();
-        const audioBlob = audioChunksRef.current.length ? new Blob(audioChunksRef.current, { type: 'audio/wav' }) : null;
-        
-        if (audioBlob) {
-            formData.append('audio_file', audioBlob, 'recordedAudio.wav');
-        }
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop()
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
+        const audioUrl = URL.createObjectURL(audioBlob)
+        setAudioUrl(audioUrl)
+      }
+      setRecording(false)
+    }
+  }
 
-        try {
-        const response = await fetch('http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/docs/voice_biometrics/', {
-            method: 'POST',
-            body: formData,
-        });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!audioUrl) {
+      alert('Please record the audio')
+      return
+    }
 
-        if (response.ok) {
-            // alert('Submitted successfully');
-            const responseData = await response.json();
-            setResult(responseData?.result || 'No result found');
-        } else {
-            alert('Submission failed');
-        }
-        } catch (error) {
-        console.error('Error submitting form data:', error);
-        alert('An error occurred during submission. Please try again later.');
-        }
-    };
+    const formData = new FormData()
+    const audioBlob = audioChunksRef.current.length > 0 ? new Blob(audioChunksRef.current, { type: 'audio/wav' }) : null
 
+    if (audioBlob) {
+      formData.append('audio_file', audioBlob, 'recordedAudio.wav')
+    }
+
+    try {
+      const response = await fetch('http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/docs/voice_biometrics/', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        // alert('Submitted successfully');
+        const responseData = await response.json()
+        setResult(responseData?.result || 'No result found')
+      }
+      else {
+        alert('Submission failed')
+      }
+    }
+    catch (error) {
+      console.error('Error submitting form data:', error)
+      alert('An error occurred during submission. Please try again later.')
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-md w-full">
-        
+
         <div className="flex items-center justify-center mb-6">
           <img src="kifiya.jpeg" alt="Logo" className="w-20 mr-4" />
           <h2 className="text-2xl font-semibold text-gray-700">Voice Biometrics</h2>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="text-center mb-4">
-            <AudioRecordComponent 
-                audioUrl1={audioUrl}
-                playing1={isPlaying}
-                setPlaying1={setIsPlaying}
-                setAudioUrl1={setAudioUrl}
-                recording1={recording}
-                setRecording1={setRecording}
-                startRecording={startRecording}
-                stopRecording={stopRecording}
-                id='audio1AUTH'
-                title='Please say, "ke be te che, la ma na ko, si ti ha ta" and record'
+            <AudioRecordComponent
+              audioUrl1={audioUrl}
+              playing1={isPlaying}
+              setPlaying1={setIsPlaying}
+              setAudioUrl1={setAudioUrl}
+              recording1={recording}
+              setRecording1={setRecording}
+              startRecording={startRecording}
+              stopRecording={stopRecording}
+              id="audio1AUTH"
+              title='Please say, "ke be te che, la ma na ko, si ti ha ta" and record'
             />
           </div>
 
@@ -104,19 +107,17 @@ const VoiceBiometricAuthentication: React.FC = () => {
               Authenticate
             </button>
 
-            {
-                result && (
-                    <div className="mt-4 p-4 bg-gray-200 text-gray-800 rounded-md">
-                        <h3 className="font-semibold text-lg">Result:</h3>
-                        <p>{result}</p>
-                    </div>
-                )
-            }
+            {result && (
+              <div className="mt-4 p-4 bg-gray-200 text-gray-800 rounded-md">
+                <h3 className="font-semibold text-lg">Result:</h3>
+                <p>{result}</p>
+              </div>
+            )}
           </div>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VoiceBiometricAuthentication;
+export default VoiceBiometricAuthentication

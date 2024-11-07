@@ -1,100 +1,103 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
-import AudioRecordComponent from './compononets/audioRecord';
 import { Spinner } from '@radix-ui/themes'
+import * as React from 'react'
+import { useRef, useState } from 'react'
 
+import AudioRecordComponent from './compononets/audioRecord'
 
 const VoiceBiometricVerification: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
-  const [customerID, setCustomerID] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  const [loanProduct, setLoanProduct] = useState<string>('');
-  const [audioUrl1, setAudioUrl1] = useState<string | null>(null);
-  const [audioUrl2, setAudioUrl2] = useState<string | null>(null);
-  const [audioUrl3, setAudioUrl3] = useState<string | null>(null);
+  const [customerID, setCustomerID] = useState<string>('')
+  const [name, setName] = useState<string>('')
+  const [loanProduct, setLoanProduct] = useState<string>('')
+  const [audioUrl1, setAudioUrl1] = useState<string | null>(null)
+  const [audioUrl2, setAudioUrl2] = useState<string | null>(null)
+  const [audioUrl3, setAudioUrl3] = useState<string | null>(null)
 
+  const [playing1, setPlaying1] = useState<boolean>(false)
+  const [playing2, setPlaying2] = useState<boolean>(false)
+  const [playing3, setPlaying3] = useState<boolean>(false)
 
-  const [playing1, setPlaying1] = useState<boolean>(false);
-  const [playing2, setPlaying2] = useState<boolean>(false);
-  const [playing3, setPlaying3] = useState<boolean>(false);
+  const [recording1, setRecording1] = useState<boolean>(false)
+  const [recording2, setRecording2] = useState<boolean>(false)
+  const [recording3, setRecording3] = useState<boolean>(false)
 
-  const [recording1, setRecording1] = useState<boolean>(false);
-  const [recording2, setRecording2] = useState<boolean>(false);
-  const [recording3, setRecording3] = useState<boolean>(false);
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
   const startRecording = async (setRecording: React.Dispatch<React.SetStateAction<boolean>>, setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>) => {
-    setAudioUrl(null);
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorderRef.current = new MediaRecorder(stream);
-    mediaRecorderRef.current.start();
-    setRecording(true);
-    audioChunksRef.current = [];
+    setAudioUrl(null)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    mediaRecorderRef.current = new MediaRecorder(stream)
+    mediaRecorderRef.current.start()
+    setRecording(true)
+    audioChunksRef.current = []
     mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-      audioChunksRef.current.push(event.data);
-    };
-  };
+      audioChunksRef.current.push(event.data)
+    }
+  }
 
   const stopRecording = (
     setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>,
-    setRecording: React.Dispatch<React.SetStateAction<boolean>>
+    setRecording: React.Dispatch<React.SetStateAction<boolean>>,
   ) => {
     if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
+      mediaRecorderRef.current.stop()
+      setRecording(false)
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        setAudioUrl(audioUrl);
-      };
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' })
+        const audioUrl = URL.createObjectURL(audioBlob)
+        setAudioUrl(audioUrl)
+      }
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     if (!audioUrl1 || !audioUrl2 || !audioUrl3) {
-      alert('Please record all three audio samples');
-      setLoading(false);
-      return;
+      alert('Please record all three audio samples')
+      setLoading(false)
+      return
     }
 
     try {
-      const formData = new FormData();
-      
-      formData.append('customer_id', customerID);
-      formData.append('name', name);
-      formData.append('loan_product', loanProduct);
+      const formData = new FormData()
 
-      const audioBlob1 = await fetch(audioUrl1).then(r => r.blob());
-      const audioBlob2 = await fetch(audioUrl2).then(r => r.blob());
-      const audioBlob3 = await fetch(audioUrl3).then(r => r.blob());
+      formData.append('customer_id', customerID)
+      formData.append('name', name)
+      formData.append('loan_product', loanProduct)
 
-      formData.append('audio_file_1', audioBlob1, 'audio1.wav');
-      formData.append('audio_file_2', audioBlob2, 'audio2.wav');
-      formData.append('audio_file_3', audioBlob3, 'audio3.wav');
+      const audioBlob1 = await fetch(audioUrl1).then(r => r.blob())
+      const audioBlob2 = await fetch(audioUrl2).then(r => r.blob())
+      const audioBlob3 = await fetch(audioUrl3).then(r => r.blob())
+
+      formData.append('audio_file_1', audioBlob1, 'audio1.wav')
+      formData.append('audio_file_2', audioBlob2, 'audio2.wav')
+      formData.append('audio_file_3', audioBlob3, 'audio3.wav')
 
       const response = await fetch('http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/', {
         method: 'POST',
         body: formData,
-      });
+      })
 
       if (response.ok) {
-        alert('Data submitted successfully');
-      } else {
-        alert('Failed to submit data');
+        alert('Data submitted successfully')
       }
-    } catch (error) {
-      console.error('Error submitting form data:', error);
-      alert('An error occurred during submission');
-    } finally {
-      setLoading(false);
+      else {
+        alert('Failed to submit data')
+      }
     }
-};
+    catch (error) {
+      console.error('Error submitting form data:', error)
+      alert('An error occurred during submission')
+    }
+    finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -148,42 +151,42 @@ const VoiceBiometricVerification: React.FC = () => {
           </div>
 
           {/* Recording Section 1 */}
-          <AudioRecordComponent 
-                  title= 'Please say, " ጥቂት ቁሳዊ አካል ከጨረቃ በታች ባለ ጠባብ ክፍል ውስጥ አገኘሁ" and record'
-                  audioUrl1={audioUrl1} 
-                  playing1 = {playing1} 
-                  recording1={recording1} 
-                  setAudioUrl1={setAudioUrl1} 
-                  setPlaying1={setPlaying1} 
-                  setRecording1={setRecording1}
-                  startRecording={startRecording}
-                  stopRecording={stopRecording}
-                  id='audioPreview1'
-                  />
-          <AudioRecordComponent 
-                  title= 'Please say, "ጨጨብሳ፣ ቋንጣ እና ቂጣ በቅጡ ማኘክ ጥሩ ነው" and record'
-                  audioUrl1={audioUrl2} 
-                  playing1 = {playing2} 
-                  recording1={recording2} 
-                  setAudioUrl1={setAudioUrl2} 
-                  setPlaying1={setPlaying2} 
-                  setRecording1={setRecording2}
-                  startRecording={startRecording}
-                  stopRecording={stopRecording}
-                  id='audioPreview2'
-                  />
-          <AudioRecordComponent 
-                  title= 'Please say, "እራሴን በገዛ እራሴ ካላቆለጳጰስኩኝ ማን ያቆለጳጵሰኛል" and record'
-                  audioUrl1={audioUrl3} 
-                  playing1 = {playing3} 
-                  recording1={recording3} 
-                  setAudioUrl1={setAudioUrl3} 
-                  setPlaying1={setPlaying3} 
-                  setRecording1={setRecording3}
-                  startRecording={startRecording}
-                  stopRecording={stopRecording}
-                  id='audioPreview3'
-                  />
+          <AudioRecordComponent
+            title='Please say, " ጥቂት ቁሳዊ አካል ከጨረቃ በታች ባለ ጠባብ ክፍል ውስጥ አገኘሁ" and record'
+            audioUrl1={audioUrl1}
+            playing1={playing1}
+            recording1={recording1}
+            setAudioUrl1={setAudioUrl1}
+            setPlaying1={setPlaying1}
+            setRecording1={setRecording1}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            id="audioPreview1"
+          />
+          <AudioRecordComponent
+            title='Please say, "ጨጨብሳ፣ ቋንጣ እና ቂጣ በቅጡ ማኘክ ጥሩ ነው" and record'
+            audioUrl1={audioUrl2}
+            playing1={playing2}
+            recording1={recording2}
+            setAudioUrl1={setAudioUrl2}
+            setPlaying1={setPlaying2}
+            setRecording1={setRecording2}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            id="audioPreview2"
+          />
+          <AudioRecordComponent
+            title='Please say, "እራሴን በገዛ እራሴ ካላቆለጳጰስኩኝ ማን ያቆለጳጵሰኛል" and record'
+            audioUrl1={audioUrl3}
+            playing1={playing3}
+            recording1={recording3}
+            setAudioUrl1={setAudioUrl3}
+            setPlaying1={setPlaying3}
+            setRecording1={setRecording3}
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            id="audioPreview3"
+          />
 
           {/* <div className="mb-4">
             <p className="text-gray-700">
@@ -259,8 +262,6 @@ const VoiceBiometricVerification: React.FC = () => {
             <audio id="audioPreview3" controls src={audioUrl3 || undefined} className="hidden mt-2" />
           </div> */}
 
-
-
           <div className="text-center">
             <button type="submit" className="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600" disabled={loading}>
               {loading ? <><Spinner /> loading</> : <span>Calculate</span>}
@@ -269,7 +270,7 @@ const VoiceBiometricVerification: React.FC = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VoiceBiometricVerification;
+export default VoiceBiometricVerification
