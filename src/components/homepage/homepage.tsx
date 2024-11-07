@@ -42,7 +42,8 @@ const VoiceBiometricVerification: React.FC = () => {
       mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
         audioChunksRef.current.push(event.data)
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error accessing microphone:', error)
       alert('Microphone permission is required to record audio.')
     }
@@ -99,13 +100,16 @@ const VoiceBiometricVerification: React.FC = () => {
       if (response.ok) {
         localStorage.setItem('customerID', customerID)
         router.push('/auth')
-      } else {
+      }
+      else {
         alert('Failed to submit data')
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error submitting form data:', error)
       alert('An error occurred during submission')
-    } finally {
+    }
+    finally {
       setLoading(false)
     }
   }
