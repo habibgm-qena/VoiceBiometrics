@@ -42,8 +42,7 @@ const VoiceBiometricVerification: React.FC = () => {
       mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
         audioChunksRef.current.push(event.data)
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error accessing microphone:', error)
       alert('Microphone permission is required to record audio.')
     }
@@ -90,7 +89,7 @@ const VoiceBiometricVerification: React.FC = () => {
       formData.append('audio_file_3', audioBlob3, 'audio3.wav')
 
       const response = await fetch(
-        'http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/',
+        'https://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/',
         {
           method: 'POST',
           body: formData,
@@ -100,16 +99,13 @@ const VoiceBiometricVerification: React.FC = () => {
       if (response.ok) {
         localStorage.setItem('customerID', customerID)
         router.push('/auth')
-      }
-      else {
+      } else {
         alert('Failed to submit data')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error submitting form data:', error)
       alert('An error occurred during submission')
-    }
-    finally {
+    } finally {
       setLoading(false)
     }
   }
