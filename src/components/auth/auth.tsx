@@ -1,5 +1,6 @@
 'use client'
 
+import { Spinner } from '@radix-ui/themes'
 import * as React from 'react'
 import { useRef, useState } from 'react'
 
@@ -12,6 +13,7 @@ const VoiceBiometricAuthentication: React.FC = () => {
   const audioChunksRef = useRef<Blob[]>([])
   const [isPlaying, setIsPlaying] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const startRecording = async () => {
     setAudioUrl(null)
@@ -47,37 +49,43 @@ const VoiceBiometricAuthentication: React.FC = () => {
     }
 
     const formData = new FormData()
-    const audioBlob = audioChunksRef.current.length > 0 ? new Blob(audioChunksRef.current, { type: 'audio/wav' }) : null
+    const audioBlob =
+      audioChunksRef.current.length > 0
+        ? new Blob(audioChunksRef.current, { type: 'audio/wav' })
+        : null
 
     if (audioBlob) {
       formData.append('audio_file', audioBlob, 'recordedAudio.wav')
     }
 
     try {
-      const response = await fetch('http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/docs/voice_biometrics/', {
-        method: 'POST',
-        body: formData,
-      })
+      setLoading(true)
+      const response = await fetch(
+        'http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/voice_biometrics/',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      )
 
       if (response.ok) {
         // alert('Submitted successfully');
         const responseData = await response.json()
         setResult(responseData?.result || 'No result found')
-      }
-      else {
+      } else {
         alert('Submission failed')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error submitting form data:', error)
       alert('An error occurred during submission. Please try again later.')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-md w-full">
-
         <div className="flex items-center justify-center mb-6">
           <img src="kifiya.jpeg" alt="Logo" className="w-20 mr-4" />
           <h2 className="text-2xl font-semibold text-gray-700">Voice Biometrics</h2>
@@ -104,7 +112,13 @@ const VoiceBiometricAuthentication: React.FC = () => {
               type="submit"
               className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
-              Authenticate
+              {loading ? (
+                <>
+                  <Spinner /> loading
+                </>
+              ) : (
+                <span>Authenticate</span>
+              )}
             </button>
 
             {result && (

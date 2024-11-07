@@ -26,7 +26,10 @@ const VoiceBiometricVerification: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
 
-  const startRecording = async (setRecording: React.Dispatch<React.SetStateAction<boolean>>, setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>) => {
+  const startRecording = async (
+    setRecording: React.Dispatch<React.SetStateAction<boolean>>,
+    setAudioUrl: React.Dispatch<React.SetStateAction<string | null>>,
+  ) => {
     setAudioUrl(null)
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     mediaRecorderRef.current = new MediaRecorder(stream)
@@ -70,31 +73,31 @@ const VoiceBiometricVerification: React.FC = () => {
       formData.append('name', name)
       formData.append('loan_product', loanProduct)
 
-      const audioBlob1 = await fetch(audioUrl1).then(r => r.blob())
-      const audioBlob2 = await fetch(audioUrl2).then(r => r.blob())
-      const audioBlob3 = await fetch(audioUrl3).then(r => r.blob())
+      const audioBlob1 = await fetch(audioUrl1).then((r) => r.blob())
+      const audioBlob2 = await fetch(audioUrl2).then((r) => r.blob())
+      const audioBlob3 = await fetch(audioUrl3).then((r) => r.blob())
 
       formData.append('audio_file_1', audioBlob1, 'audio1.wav')
       formData.append('audio_file_2', audioBlob2, 'audio2.wav')
       formData.append('audio_file_3', audioBlob3, 'audio3.wav')
 
-      const response = await fetch('http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/', {
-        method: 'POST',
-        body: formData,
-      })
+      const response = await fetch(
+        'http://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/',
+        {
+          method: 'POST',
+          body: formData,
+        },
+      )
 
       if (response.ok) {
         alert('Data submitted successfully')
-      }
-      else {
+      } else {
         alert('Failed to submit data')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error submitting form data:', error)
       alert('An error occurred during submission')
-    }
-    finally {
+    } finally {
       setLoading(false)
     }
   }
@@ -188,83 +191,19 @@ const VoiceBiometricVerification: React.FC = () => {
             id="audioPreview3"
           />
 
-          {/* <div className="mb-4">
-            <p className="text-gray-700">
-              Please say, "ጨጨብሳ፣ ቋንጣ እና  ቂጣ በቅጡ ማኘክ ጥሩ ነው"
-            </p>
-            <button
-              type="button"
-              className={`mt-2 px-4 py-2 rounded-md text-white ${
-                recording2 ? 'bg-red-500' : 'bg-blue-500'
-              } hover:bg-blue-600 flex items-center`}
-              onClick={() => startRecording(setRecording2, setAudioUrl2)}
-              disabled={recording2}
-            >
-              <SpeakerLoudIcon className="w-5 h-5 mr-2" />
-              {recording2 ? 'Recording...' : 'Start Recording'}
-            </button>
-            <button
-              type="button"
-              className="ml-2 mt-2 px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 flex items-center"
-              onClick={() => stopRecording(setAudioUrl2, setRecording2)}
-              disabled={!recording2}
-            >
-              <Cross1Icon className="w-5 h-5 mr-2" />
-              Stop
-            </button>
-            {audioUrl2 && (
-              <button
-                type="button"
-                className="ml-2 mt-2 px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 flex items-center"
-                onClick={() => (document.getElementById('audioPreview1') as HTMLAudioElement)?.play()}
-              >
-                <TriangleRightIcon className="w-5 h-5 mr-2" />
-                Play Recording
-              </button>
-            )}
-            <audio id="audioPreview2" controls src={audioUrl2 || undefined} className="hidden mt-2" />
-          </div>
-
-          <div className="mb-4">
-            <p className="text-gray-700">
-              Please say, "እራሴን በገዛ እራሴ ካላቆለጳጰስኩኝ ማን ያቆለጳጵሰኛል"
-            </p>
-            <button
-              type="button"
-              className={`mt-2 px-4 py-2 rounded-md text-white ${
-                recording3 ? 'bg-red-500' : 'bg-blue-500'
-              } hover:bg-blue-600 flex items-center`}
-              onClick={() => startRecording(setRecording3, setAudioUrl3)}
-              disabled={recording3}
-            >
-              <SpeakerLoudIcon className="w-5 h-5 mr-2" />
-              {recording3 ? 'Recording...' : 'Start Recording'}
-            </button>
-            <button
-              type="button"
-              className="ml-2 mt-2 px-4 py-2 rounded-md bg-gray-600 text-white hover:bg-gray-700 flex items-center"
-              onClick={() => stopRecording(setAudioUrl3, setRecording3)}
-              disabled={!recording3}
-            >
-              <Cross1Icon className="w-5 h-5 mr-2" />
-              Stop
-            </button>
-            {audioUrl3 && (
-              <button
-                type="button"
-                className="ml-2 mt-2 px-4 py-2 rounded-md bg-green-500 text-white hover:bg-green-600 flex items-center"
-                onClick={() => (document.getElementById('audioPreview1') as HTMLAudioElement)?.play()}
-              >
-                <TriangleRightIcon className="w-5 h-5 mr-2" />
-                Play Recording
-              </button>
-            )}
-            <audio id="audioPreview3" controls src={audioUrl3 || undefined} className="hidden mt-2" />
-          </div> */}
-
           <div className="text-center">
-            <button type="submit" className="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600" disabled={loading}>
-              {loading ? <><Spinner /> loading</> : <span>Calculate</span>}
+            <button
+              type="submit"
+              className="w-full py-2 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner /> loading
+                </>
+              ) : (
+                <span>Calculate</span>
+              )}
             </button>
           </div>
         </form>
