@@ -9,7 +9,7 @@ const VoiceBiometricAuthentication: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [result, setResult] = useState<string | null>("456");
+  const [result, setResult] = useState<string | null>(null);
 
   const startRecording = async () => {
     setAudioUrl(null);
