@@ -90,7 +90,7 @@ const VoiceBiometricVerification: React.FC = () => {
       formData.append('audio_file_3', audioBlob3, 'audio3.wav')
 
       const response = await fetch(
-        'https://aeb1cd586b3fe427c93eecedb8c7fa1f-1727048564.us-east-1.elb.amazonaws.com/upload-audio/',
+        'http://54.162.136.11/api/v1/voice/upload-audio/',
         {
           method: 'POST',
           body: formData,
@@ -214,7 +214,7 @@ const VoiceBiometricVerification: React.FC = () => {
                   <Spinner /> loading
                 </>
               ) : (
-                <span>Calculate</span>
+                <span>Register</span>
               )}
             </button>
           </div>
