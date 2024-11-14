@@ -82,7 +82,7 @@ const VoiceBiometricAuthentication: React.FC = () => {
     try {
       setLoading(true)
       const response = await fetch(
-        'http://54.162.136.11/api/v1/voice/voice_biometrics/',
+        'https://54.162.136.11/api/v1/voice/voice_biometrics/',
         {
           method: 'POST',
           body: formData,
